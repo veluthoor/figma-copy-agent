@@ -2,33 +2,52 @@
 
 Paste a Figma frame URL, Claude reads the copy, and posts improvement suggestions as comments directly on the design.
 
-## Setup
+---
 
-### 1. Clone and install
+## Teammate setup (5 minutes)
+
+Everyone runs this locally with their own API credentials — no shared keys.
+
+### 1. Clone the repo
 
 ```bash
+git clone https://github.com/veluthoor/figma-copy-agent.git
 cd figma-copy-agent
-python -m venv .venv
+```
+
+### 2. Create a virtual environment and install dependencies
+
+```bash
+python3 -m venv .venv
 source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### 2. Set environment variables
+### 3. Get your API keys
+
+**Anthropic API key** (needed to run Claude):
+- Go to [console.anthropic.com](https://console.anthropic.com) → API Keys → Create key
+- It looks like `sk-ant-...`
+
+**Figma token** (needed to read designs and post comments):
+- In Figma: top-left menu → **Settings → Security → Personal access tokens** → Generate token
+- It looks like `figd_...`
+- You can also enter this in the UI each time instead of saving it
+
+### 4. Add your keys
 
 ```bash
 cp .env.example .env
 ```
 
-Edit `.env`:
+Open `.env` and fill in your keys:
 
 ```
-ANTHROPIC_API_KEY=sk-ant-...
-FIGMA_TOKEN=figd_...          # optional — can be entered in the UI instead
+ANTHROPIC_API_KEY=sk-ant-your-key-here
+FIGMA_TOKEN=figd_your-token-here   # optional if you prefer to enter it in the UI
 ```
 
-Get your Figma token at: **Figma → Settings → Security → Personal access tokens**
-
-### 3. Run
+### 5. Run
 
 ```bash
 uvicorn main:app --reload
@@ -40,36 +59,17 @@ Open [http://localhost:8000](http://localhost:8000)
 
 ## Using the app
 
-1. Open a Figma file and select the frame you want reviewed
-2. Copy the URL (it should include `?node-id=...`)
-3. Paste it into the app
-4. Add optional PM context (e.g. "This is the renewal flow for Academy plans")
-5. Click **Review copy & post comments**
-6. Switch back to Figma — comments will appear anchored to each text element
-
----
-
-## Deploying for your team
-
-### Railway / Render (recommended)
-
-1. Push this folder to a GitHub repo
-2. Connect to [Railway](https://railway.app) or [Render](https://render.com)
-3. Set environment variables: `ANTHROPIC_API_KEY`, `FIGMA_TOKEN`
-4. Start command: `uvicorn main:app --host 0.0.0.0 --port $PORT`
-
-### Fly.io
-
-```bash
-fly launch
-fly secrets set ANTHROPIC_API_KEY=... FIGMA_TOKEN=...
-fly deploy
-```
+1. Open a Figma file, select the frame you want reviewed, and copy the URL from your browser (it should include `?node-id=...`)
+2. Paste the URL into the app
+3. Add optional PM context (e.g. "This is the renewal flow for Academy plans — kids under 18, parent-managed")
+4. Click **Review copy & post comments**
+5. Switch back to Figma — suggestions appear as comments anchored to each text element
 
 ---
 
 ## Notes
 
-- The Figma URL **must include a `node-id`** — select a frame in Figma and copy the URL from the browser
-- The agent skips labels, numbers, prices, dates, and UI chrome — it focuses on headlines, CTAs, body copy, and nudges
-- Each teammate can provide their own Figma token in the UI, or you can set a shared one server-side
+- The Figma URL **must include a `node-id`** — click on a frame in Figma first, then copy the URL
+- The agent focuses on headlines, CTAs, body copy, success/error messages, and nudges — it skips labels, prices, dates, and UI chrome
+- Comments are posted under your Figma account (whoever's token is used)
+- Each run costs a few cents in Anthropic API credits — check [console.anthropic.com](https://console.anthropic.com) to monitor usage
