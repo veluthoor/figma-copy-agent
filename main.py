@@ -49,6 +49,7 @@ class ReviewRequest(BaseModel):
     figma_url: str
     pm_context: str = ""
     figma_token: str = ""
+    anthropic_key: str = ""
 
 
 def parse_figma_url(url: str):
@@ -169,6 +170,10 @@ async def review_figma(req: ReviewRequest):
     if not figma_token:
         raise HTTPException(status_code=400, detail="Figma token required")
 
+    anthropic_key = req.anthropic_key or ANTHROPIC_API_KEY
+    if not anthropic_key:
+        raise HTTPException(status_code=400, detail="Anthropic API key required")
+
     try:
         file_key, node_id = parse_figma_url(req.figma_url)
     except ValueError as e:
@@ -196,7 +201,7 @@ async def review_figma(req: ReviewRequest):
     ])
 
     # Ask Claude for copy improvements
-    client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+    client = anthropic.Anthropic(api_key=anthropic_key)
 
     prompt = f"""You are reviewing app copy for Game Theory, a sports platform.
 

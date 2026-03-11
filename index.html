@@ -189,9 +189,15 @@
     </div>
 
     <div class="field">
-      <label>Figma Token <span style="color:#555">(optional if set server-side)</span></label>
+      <label>Figma Token</label>
       <input type="password" id="figma_token" placeholder="figd_..." />
-      <div class="hint">Settings → Security → Personal access tokens</div>
+      <div class="hint">Figma → Settings → Security → Personal access tokens</div>
+    </div>
+
+    <div class="field">
+      <label>Anthropic API Key</label>
+      <input type="password" id="anthropic_key" placeholder="sk-ant-..." />
+      <div class="hint">console.anthropic.com → API Keys → Create key</div>
     </div>
 
     <button id="btn" onclick="runReview()">Review copy & post comments</button>
@@ -209,9 +215,18 @@
       const figma_url = document.getElementById('figma_url').value.trim();
       const pm_context = document.getElementById('pm_context').value.trim();
       const figma_token = document.getElementById('figma_token').value.trim();
+      const anthropic_key = document.getElementById('anthropic_key').value.trim();
 
       if (!figma_url) {
         status.innerHTML = '<span class="error-msg">Please enter a Figma URL.</span>';
+        return;
+      }
+      if (!anthropic_key) {
+        status.innerHTML = '<span class="error-msg">Please enter your Anthropic API key.</span>';
+        return;
+      }
+      if (!figma_token) {
+        status.innerHTML = '<span class="error-msg">Please enter your Figma token.</span>';
         return;
       }
 
@@ -223,7 +238,7 @@
         const res = await fetch('/review', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ figma_url, pm_context, figma_token }),
+          body: JSON.stringify({ figma_url, pm_context, figma_token, anthropic_key }),
         });
 
         const data = await res.json();
